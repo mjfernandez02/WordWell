@@ -1,4 +1,9 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Maple } from "../components/Logos";
+import { PetArtwork } from "../styles/Onboarding.styles";
+import zapSrc from "../assets/zap.svg";
+import coinSrc from "../assets/coin.svg";
 import {
   AnswerFeedback,
   AnswerLetter,
@@ -9,6 +14,15 @@ import {
   AnswerText,
   CompletionCard,
   CompletionText,
+  CompletionHeading,
+  CompletionScore,
+  CompletionRewards,
+  CompletionReward,
+  RewardIcon,
+  RewardValue,
+  RewardLabel,
+  CompletionActions,
+  VisitPetButton,
   ContinueButton,
   PracticeContent,
   PracticeFooter,
@@ -110,17 +124,51 @@ const Practice = () => {
 
   if (complete) {
     return (
-      <PracticePage>
+      <PracticePage py={{ base: "30px", md: "38px" }}>
         <PracticeContent>
           <CompletionCard>
-            <PracticeWord as="h1">Practice complete</PracticeWord>
+            <PetArtwork
+              width="104px"
+              height="104px"
+              margin="6px auto 30px"
+              css={{
+                "& img": { display: "block", width: "112px", height: "112px" },
+              }}
+            >
+              <Maple />
+            </PetArtwork>
+            <CompletionHeading>Practice Complete!</CompletionHeading>
             <CompletionText>
-              You reviewed {questions.length} words and answered {score}{" "}
-              correctly.
+              You got{" "}
+              <CompletionScore>
+                {score} out of {questions.length}
+              </CompletionScore>{" "}
+              correct today.
             </CompletionText>
-            <ContinueButton onClick={restartPractice}>
-              Practice again
-            </ContinueButton>
+            <CompletionRewards>
+              <CompletionReward>
+                <RewardIcon source={zapSrc} />
+                <RewardValue>+{score * 20} XP</RewardValue>
+                <RewardLabel>Experience Points</RewardLabel>
+              </CompletionReward>
+              <CompletionReward reward>
+                <RewardIcon source={coinSrc} />
+                <RewardValue>+{score * 5} Coins</RewardValue>
+                <RewardLabel>Bonus Gold</RewardLabel>
+              </CompletionReward>
+            </CompletionRewards>
+            <CompletionActions>
+              <VisitPetButton asChild>
+                <Link to="/pet">Visit my pet</Link>
+              </VisitPetButton>
+              <ContinueButton
+                width="100%"
+                borderRadius="12px"
+                onClick={restartPractice}
+              >
+                Practice again
+              </ContinueButton>
+            </CompletionActions>
           </CompletionCard>
         </PracticeContent>
       </PracticePage>

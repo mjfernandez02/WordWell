@@ -10,15 +10,6 @@ import Callback from "./pages/Callback";
 import Onboarding from "./pages/Onboarding";
 import Practice from "./pages/Practice";
 import MyPet from "./pages/MyPet";
-// import PracticePage from "./pages/PracticePage";
-
-// function ProtectedPractice() {
-//   return (
-//     <ProtectedRoute>
-//       <PracticePage />
-//     </ProtectedRoute>
-//   );
-// }
 
 export default function App() {
   return (

@@ -206,14 +206,118 @@ export const ContinueButton = (props) => (
   />
 );
 
-export const CompletionCard = (props) => <WordCard minH="320px" {...props} />;
+export const CompletionCard = (props) => (
+  <Flex
+    width="100%"
+    maxW="532px"
+    mx="auto"
+    padding={{ base: "28px 20px", sm: "36px" }}
+    direction="column"
+    align="center"
+    border="1px solid"
+    borderColor="app.border.card"
+    borderRadius="24px"
+    background="app.surface.card"
+    textAlign="center"
+    {...props}
+  />
+);
+
+export const CompletionHeading = (props) => (
+  <Heading
+    as="h1"
+    color="app.text.heading"
+    fontSize={{ base: "24px", sm: "28px" }}
+    fontWeight="700"
+    lineHeight="1.2"
+    {...props}
+  />
+);
 
 export const CompletionText = (props) => (
   <Text
-    maxW="480px"
-    margin="18px auto 26px"
+    margin="8px 0 24px"
     color="app.text.body"
-    lineHeight="1.7"
+    fontSize="14px"
+    lineHeight="1.5"
+    {...props}
+  />
+);
+
+export const CompletionScore = (props) => (
+  <Text as="strong" color="app.accent.text" fontWeight="700" {...props} />
+);
+
+export const CompletionRewards = (props) => (
+  <Flex width="100%" gap="18px" {...props} />
+);
+
+export const CompletionReward = ({ reward = false, ...props }) => (
+  <Flex
+    flex="1"
+    minW="0"
+    minH="100px"
+    padding="14px 8px"
+    direction="column"
+    align="center"
+    justify="center"
+    gap="6px"
+    border="1px solid"
+    borderColor={reward ? "app.reward.default" : "app.border.accent"}
+    borderRadius="12px"
+    color={reward ? "app.reward.default" : "app.accent.text"}
+    background={reward ? "app.reward.subtle" : "app.accent.subtle"}
+    {...props}
+  />
+);
+
+export const RewardIcon = ({ source, ...props }) => (
+  <Box
+    aria-hidden="true"
+    width="18px"
+    height="18px"
+    background="currentColor"
+    style={{ mask: `url("${source}") center / contain no-repeat` }}
+    {...props}
+  />
+);
+
+export const RewardValue = (props) => (
+  <Text
+    fontSize={{ base: "18px", sm: "20px" }}
+    fontWeight="700"
+    lineHeight="1.2"
+    {...props}
+  />
+);
+
+export const RewardLabel = (props) => (
+  <Text color="app.text.muted" fontSize="11px" {...props} />
+);
+
+export const CompletionActions = (props) => (
+  <Box
+    display="grid"
+    gridTemplateColumns={{ base: "1fr", sm: "1fr 1fr" }}
+    width="100%"
+    marginTop="24px"
+    gap="12px"
+    {...props}
+  />
+);
+
+export const VisitPetButton = (props) => (
+  <Button
+    width="100%"
+    minH="40px"
+    border="1px solid"
+    borderColor="app.reward.default"
+    borderRadius="12px"
+    color="app.reward.default"
+    background="app.surface.card"
+    fontSize="13px"
+    fontWeight="700"
+    _hover={{ background: "app.reward.subtle" }}
     {...props}
   />
 );
