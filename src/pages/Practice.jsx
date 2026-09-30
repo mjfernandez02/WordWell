@@ -6,6 +6,9 @@ import zapSrc from "../assets/zap.svg";
 import coinSrc from "../assets/coin.svg";
 import {
   AnswerFeedback,
+  FeedbackCopy,
+  FeedbackExample,
+  FeedbackPet,
   AnswerLetter,
   AnswerList,
   AnswerOption,
@@ -39,6 +42,7 @@ import {
 const questions = [
   {
     word: "resilient",
+    example: "The resilient community recovered quickly after the storm.",
     type: "adjective",
     answers: [
       "Able to withstand or recover quickly from difficult conditions.",
@@ -49,6 +53,7 @@ const questions = [
   },
   {
     word: "lucid",
+    example: "Her lucid explanation made the difficult topic easy to understand.",
     type: "adjective",
     answers: [
       "Expressed clearly and easy to understand.",
@@ -59,6 +64,7 @@ const questions = [
   },
   {
     word: "meticulous",
+    example: "He kept meticulous notes of every experiment.",
     type: "adjective",
     answers: [
       "Unwilling to reveal thoughts or feelings.",
@@ -69,6 +75,7 @@ const questions = [
   },
   {
     word: "pragmatic",
+    example: "She took a pragmatic approach to solving the budget crisis.",
     type: "adjective",
     answers: [
       "Dealing with problems in a practical, realistic way.",
@@ -79,6 +86,7 @@ const questions = [
   },
   {
     word: "eloquent",
+    example: "Her eloquent speech inspired everyone in the room.",
     type: "adjective",
     answers: [
       "Quiet and unwilling to attract attention.",
@@ -98,6 +106,7 @@ const Practice = () => {
   const [complete, setComplete] = useState(false);
 
   const question = questions[questionIndex];
+  const answered = selectedAnswer !== null;
   const isCorrect = selectedAnswer === question.correctAnswer;
   const progress = ((questionIndex + 1) / questions.length) * 100;
 
@@ -177,7 +186,7 @@ const Practice = () => {
 
   return (
     <PracticePage>
-      <PracticeContent>
+      <PracticeContent maxW="608px">
         <PracticeProgressHeader>
           <QuestionCounter>
             Question {questionIndex + 1} of {questions.length}
@@ -199,39 +208,54 @@ const Practice = () => {
         </WordCard>
 
         <AnswerSection aria-labelledby="answer-prompt">
-          <AnswerPrompt id="answer-prompt">
+          <AnswerPrompt id="answer-prompt" srOnly={answered}>
             Select the correct meaning:
           </AnswerPrompt>
           <AnswerList>
-            {question.answers.map((answer, index) => (
-              <AnswerOption
-                key={answer}
-                selected={selectedAnswer === index}
-                aria-pressed={selectedAnswer === index}
-                onClick={() => setSelectedAnswer(index)}
-              >
-                <AnswerLetter>{answerLetters[index]}</AnswerLetter>
-                <AnswerText>{answer}</AnswerText>
-              </AnswerOption>
-            ))}
+            {question.answers.map((answer, index) => {
+              const result = !answered ? "unanswered" : index === question.correctAnswer
+                ? "correct" : index === selectedAnswer ? "incorrect" : "muted";
+              return (
+                <AnswerOption
+                  key={answer}
+                  result={result}
+                  aria-pressed={selectedAnswer === index}
+                  aria-disabled={answered}
+                  aria-label={`${answerLetters[index]}. ${answer}${result === "correct" ? ". Correct answer" : result === "incorrect" ? ". Your answer, incorrect" : ""}`}
+                  onClick={() => { if (!answered) setSelectedAnswer(index); }}
+                >
+                  <AnswerLetter result={result} aria-hidden="true">
+                    {result === "correct" ? "\u2713" : result === "incorrect" ? "\u00d7" : answerLetters[index]}
+                  </AnswerLetter>
+                  <AnswerText>{answer}</AnswerText>
+                </AnswerOption>
+              );
+            })}
           </AnswerList>
 
-          <PracticeFooter aria-live="polite">
-            {selectedAnswer !== null && (
-              <>
-                <AnswerFeedback correct={isCorrect}>
-                  {isCorrect
-                    ? "Correct — nicely done."
-                    : "Not quite. You can continue and review it again later."}
-                </AnswerFeedback>
-                <ContinueButton onClick={handleContinue}>
-                  {questionIndex === questions.length - 1
-                    ? "Finish"
-                    : "Continue →"}
+          <div aria-live="polite" aria-atomic="true">
+            {answered && (
+              <PracticeFooter correct={isCorrect}>
+                <FeedbackPet><Maple alt="" /></FeedbackPet>
+                <FeedbackCopy>
+                  <AnswerFeedback correct={isCorrect}>
+                    {isCorrect ? "Correct \u2014 nicely done!" : "Not quite \u2014 keep going!"}
+                  </AnswerFeedback>
+                  <FeedbackExample>
+                    Example: <strong>"{question.example}"</strong>
+                  </FeedbackExample>
+                </FeedbackCopy>
+                <ContinueButton
+                  onClick={handleContinue}
+                  background={isCorrect ? "app.action.default" : "app.reward.default"}
+                  _hover={{ background: isCorrect ? "app.action.hover" : "app.reward.hover" }}
+                  width={{ base: "100%", sm: "auto" }}
+                >
+                  {questionIndex === questions.length - 1 ? "Finish" : "Next word"}
                 </ContinueButton>
-              </>
+              </PracticeFooter>
             )}
-          </PracticeFooter>
+          </div>
         </AnswerSection>
       </PracticeContent>
     </PracticePage>
