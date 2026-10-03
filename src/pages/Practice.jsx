@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPracticeQuiz } from "../utils/practiceQuiz";
 import { Link } from "react-router-dom";
 import { Maple } from "../components/Logos";
 import { PetArtwork } from "../styles/Onboarding.styles";
@@ -39,67 +40,10 @@ import {
   WordType,
 } from "../styles/Practice.styles";
 
-const questions = [
-  {
-    word: "resilient",
-    example: "The resilient community recovered quickly after the storm.",
-    type: "adjective",
-    answers: [
-      "Able to withstand or recover quickly from difficult conditions.",
-      "Showing a clear lack of interest, energy, or excitement.",
-      "Strictly following conventional rules or traditional practices.",
-    ],
-    correctAnswer: 0,
-  },
-  {
-    word: "lucid",
-    example: "Her lucid explanation made the difficult topic easy to understand.",
-    type: "adjective",
-    answers: [
-      "Expressed clearly and easy to understand.",
-      "Extremely old or belonging to a distant era.",
-      "Likely to change suddenly without warning.",
-    ],
-    correctAnswer: 0,
-  },
-  {
-    word: "meticulous",
-    example: "He kept meticulous notes of every experiment.",
-    type: "adjective",
-    answers: [
-      "Unwilling to reveal thoughts or feelings.",
-      "Showing great attention to every detail.",
-      "Happening by chance in a fortunate way.",
-    ],
-    correctAnswer: 1,
-  },
-  {
-    word: "pragmatic",
-    example: "She took a pragmatic approach to solving the budget crisis.",
-    type: "adjective",
-    answers: [
-      "Dealing with problems in a practical, realistic way.",
-      "Having a strong desire to travel.",
-      "Using more words than are necessary.",
-    ],
-    correctAnswer: 0,
-  },
-  {
-    word: "eloquent",
-    example: "Her eloquent speech inspired everyone in the room.",
-    type: "adjective",
-    answers: [
-      "Quiet and unwilling to attract attention.",
-      "Fluent or persuasive in speaking or writing.",
-      "Difficult to find, catch, or achieve.",
-    ],
-    correctAnswer: 1,
-  },
-];
-
 const answerLetters = ["A", "B", "C"];
 
 const Practice = () => {
+  const [questions, setQuestions] = useState(() => createPracticeQuiz());
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [score, setScore] = useState(0);
@@ -125,6 +69,7 @@ const Practice = () => {
   };
 
   const restartPractice = () => {
+    setQuestions(createPracticeQuiz());
     setQuestionIndex(0);
     setSelectedAnswer(null);
     setScore(0);
@@ -213,8 +158,13 @@ const Practice = () => {
           </AnswerPrompt>
           <AnswerList>
             {question.answers.map((answer, index) => {
-              const result = !answered ? "unanswered" : index === question.correctAnswer
-                ? "correct" : index === selectedAnswer ? "incorrect" : "muted";
+              const result = !answered
+                ? "unanswered"
+                : index === question.correctAnswer
+                  ? "correct"
+                  : index === selectedAnswer
+                    ? "incorrect"
+                    : "muted";
               return (
                 <AnswerOption
                   key={answer}
@@ -222,10 +172,16 @@ const Practice = () => {
                   aria-pressed={selectedAnswer === index}
                   aria-disabled={answered}
                   aria-label={`${answerLetters[index]}. ${answer}${result === "correct" ? ". Correct answer" : result === "incorrect" ? ". Your answer, incorrect" : ""}`}
-                  onClick={() => { if (!answered) setSelectedAnswer(index); }}
+                  onClick={() => {
+                    if (!answered) setSelectedAnswer(index);
+                  }}
                 >
                   <AnswerLetter result={result} aria-hidden="true">
-                    {result === "correct" ? "\u2713" : result === "incorrect" ? "\u00d7" : answerLetters[index]}
+                    {result === "correct"
+                      ? "\u2713"
+                      : result === "incorrect"
+                        ? "\u00d7"
+                        : answerLetters[index]}
                   </AnswerLetter>
                   <AnswerText>{answer}</AnswerText>
                 </AnswerOption>
@@ -236,10 +192,14 @@ const Practice = () => {
           <div aria-live="polite" aria-atomic="true">
             {answered && (
               <PracticeFooter correct={isCorrect}>
-                <FeedbackPet><Maple alt="" /></FeedbackPet>
+                <FeedbackPet>
+                  <Maple alt="" />
+                </FeedbackPet>
                 <FeedbackCopy>
                   <AnswerFeedback correct={isCorrect}>
-                    {isCorrect ? "Correct \u2014 nicely done!" : "Not quite \u2014 keep going!"}
+                    {isCorrect
+                      ? "Correct \u2014 nicely done!"
+                      : "Not quite \u2014 keep going!"}
                   </AnswerFeedback>
                   <FeedbackExample>
                     Example: <strong>"{question.example}"</strong>
@@ -247,11 +207,19 @@ const Practice = () => {
                 </FeedbackCopy>
                 <ContinueButton
                   onClick={handleContinue}
-                  background={isCorrect ? "app.action.default" : "app.reward.default"}
-                  _hover={{ background: isCorrect ? "app.action.hover" : "app.reward.hover" }}
+                  background={
+                    isCorrect ? "app.action.default" : "app.reward.default"
+                  }
+                  _hover={{
+                    background: isCorrect
+                      ? "app.action.hover"
+                      : "app.reward.hover",
+                  }}
                   width={{ base: "100%", sm: "auto" }}
                 >
-                  {questionIndex === questions.length - 1 ? "Finish" : "Next word"}
+                  {questionIndex === questions.length - 1
+                    ? "Finish"
+                    : "Next word"}
                 </ContinueButton>
               </PracticeFooter>
             )}
