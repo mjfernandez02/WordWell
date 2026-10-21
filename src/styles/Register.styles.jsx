@@ -142,6 +142,26 @@ export const RegisterInput = (props) => (
   />
 );
 
+export const RegisterPasswordField = (props) => (
+  <Box position="relative" {...props} />
+);
+
+export const RegisterPasswordToggle = (props) => (
+  <Button
+    position="absolute"
+    top="50%"
+    right="4px"
+    transform="translateY(-50%)"
+    minH="36px"
+    paddingX="10px"
+    color="#287058"
+    background="transparent"
+    fontSize="13px"
+    _hover={{ background: "#eef5f1" }}
+    {...props}
+  />
+);
+
 export const RegisterSubmit = (props) => (
   <Button
     width="100%"

@@ -19,6 +19,8 @@ import {
   LoginLabel,
   LoginOrb,
   LoginPage,
+  LoginPasswordField,
+  LoginPasswordToggle,
   LoginSubmit,
   LoginSubtitle,
   LoginTitle,
@@ -27,6 +29,7 @@ import {
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const { login, loading } = useAuth();
@@ -151,14 +154,25 @@ const Login = () => {
 
           <LoginField>
             <LoginLabel>Password</LoginLabel>
-            <LoginInput
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              autoComplete="current-password"
-            />
+            <LoginPasswordField>
+              <LoginInput
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                autoComplete="current-password"
+                paddingRight="76px"
+              />
+              <LoginPasswordToggle
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </LoginPasswordToggle>
+            </LoginPasswordField>
             {fieldErrors.password && (
               <LoginFieldError>{fieldErrors.password}</LoginFieldError>
             )}

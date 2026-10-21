@@ -16,6 +16,8 @@ import {
   RegisterLabel,
   RegisterOrb,
   RegisterPage,
+  RegisterPasswordField,
+  RegisterPasswordToggle,
   RegisterSubmit,
   RegisterSubtitle,
   RegisterTitle,
@@ -23,6 +25,7 @@ import {
 
 const Register = () => {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -103,14 +106,25 @@ const Register = () => {
 
           <RegisterField>
             <RegisterLabel>Password</RegisterLabel>
-            <RegisterInput
-              type="password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              placeholder="Choose a strong password"
-              required
-              autoComplete="new-password"
-            />
+            <RegisterPasswordField>
+              <RegisterInput
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder="Choose a strong password"
+                required
+                autoComplete="new-password"
+                paddingRight="76px"
+              />
+              <RegisterPasswordToggle
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </RegisterPasswordToggle>
+            </RegisterPasswordField>
           </RegisterField>
 
           <RegisterSubmit type="submit" disabled={loading || success}>
