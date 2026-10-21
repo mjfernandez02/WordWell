@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { API_URL } from "../config/api";
 import { CODE_MAP, codeMessage } from "../utils/apiClient";
-import { useToast } from "../context/ToastContext";
 import { generateCodeVerifier, generateCodeChallenge } from "../pkce";
 import {
   LoginAlert,
@@ -32,7 +31,6 @@ const Login = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const { login, loading } = useAuth();
   const navigate = useNavigate();
-  const { showToast } = useToast();
   const [searchParams] = useSearchParams();
 
   const clientId = searchParams.get("client_id");
@@ -46,42 +44,55 @@ const Login = () => {
     const loginPayload = { email, password };
 
     if (clientId && redirectUri) {
-      const codeVerifier = generateCodeVerifier();
-      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      try {
+        loginPayload.client_id = clientId;
+        loginPayload.redirect_uri = redirectUri;
+        const incomingChallenge = searchParams.get("code_challenge");
+        if (incomingChallenge) {
+          // The initiating client owns the verifier; preserve its challenge and state.
+          loginPayload.code_challenge = incomingChallenge;
+          loginPayload.code_challenge_method =
+            searchParams.get("code_challenge_method") || "S256";
+          if (state) loginPayload.state = state;
+        } else if (new URL(redirectUri).origin === window.location.origin) {
+          const codeVerifier = generateCodeVerifier();
+          loginPayload.code_challenge =
+            await generateCodeChallenge(codeVerifier);
+          loginPayload.code_challenge_method = "S256";
+          loginPayload.state = state || crypto.randomUUID();
+          sessionStorage.setItem("pkce_code_verifier", codeVerifier);
+          sessionStorage.setItem("oauth_client_id", clientId);
+          sessionStorage.setItem("oauth_redirect_uri", redirectUri);
+          sessionStorage.setItem("oauth_state", loginPayload.state);
+        } else if (state) loginPayload.state = state;
 
-      sessionStorage.setItem("pkce_code_verifier", codeVerifier);
-      sessionStorage.setItem("oauth_client_id", clientId);
-      sessionStorage.setItem("oauth_redirect_uri", redirectUri);
+        const res = await fetch(`${API_URL}/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(loginPayload),
+          credentials: "include",
+        });
 
-      loginPayload.client_id = clientId;
-      loginPayload.redirect_uri = redirectUri;
-      if (state) loginPayload.state = state;
-      loginPayload.code_challenge = codeChallenge;
-      loginPayload.code_challenge_method = "S256";
-
-      const res = await fetch(`${API_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginPayload),
-        credentials: "include",
-      });
-
-      if (res.redirected || res.status === 302) {
-        window.location.href = res.url;
-      } else if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        const code = err.errorCode || err.code || null;
-        if (code === "VALIDATION_ERROR") {
-          setFieldErrors(CODE_MAP.VALIDATION_ERROR(err));
-          setError(Object.values(CODE_MAP.VALIDATION_ERROR(err))[0]);
-        } else if (code === "INVALID_CREDENTIALS") {
-          setError(CODE_MAP.INVALID_CREDENTIALS());
-        } else if (code === "RATE_LIMITED" || code === "SERVER_ERROR") {
-          showToast(codeMessage(code), "error");
-          setError(codeMessage(code));
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.redirectUrl) {
+          window.location.assign(data.redirectUrl);
         } else {
-          setError(err.error || "Login failed");
+          const code =
+            data.errorCode ||
+            data.code ||
+            (res.status === 429 ? "RATE_LIMITED" : null);
+          if (code === "VALIDATION_ERROR") {
+            setFieldErrors(CODE_MAP.VALIDATION_ERROR(data));
+          }
+          setError(
+            code ? codeMessage(code, data) : data.error || "Login failed",
+          );
         }
+      } catch {
+        setError("Unable to sign in. Please try again.");
       }
     } else {
       setFieldErrors({});

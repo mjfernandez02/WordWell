@@ -21,10 +21,9 @@ import { Coin, Zap } from "./Logos";
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { pathname, hash } = useLocation();
-  const isAppPreview = ["/onboarding", "/practice", "/pet"].includes(pathname);
-  const showAppNavigation = Boolean(user) || isAppPreview;
-  const experience = user?.xp ?? user?.experience ?? 0;
-  const coins = user?.coins ?? 0;
+  const showAppNavigation = Boolean(user);
+  const experience = user?.xp ?? 0;
+  const coins = user?.points ?? 0;
 
   const initials = user?.email
     ? user.email.split("@")[0].slice(0, 2).toUpperCase()
@@ -63,7 +62,7 @@ const Navbar = () => {
               <Zap /> {experience} XP
             </NavbarStatPill>
             <NavbarStatPill tone="reward" aria-label={`${coins} coins`}>
-              <Coin /> {coins}
+              <Coin /> {coins} Coins
             </NavbarStatPill>
           </NavbarStats>
           <NavbarUser>
@@ -74,15 +73,6 @@ const Navbar = () => {
           </NavbarUser>
           <NavbarOutlineButton onClick={logout}>Sign out</NavbarOutlineButton>
         </NavbarLinks>
-      ) : showAppNavigation ? (
-        <NavbarStats aria-label="Your rewards">
-          <NavbarStatPill aria-label="0 experience points">
-            <Zap /> 0 XP
-          </NavbarStatPill>
-          <NavbarStatPill tone="reward" aria-label="0 coins">
-            <Coin /> 0
-          </NavbarStatPill>
-        </NavbarStats>
       ) : (
         <NavbarLinks>
           <NavbarGhostLink to="/login">Sign in</NavbarGhostLink>

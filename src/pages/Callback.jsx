@@ -10,7 +10,10 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { apiPost } from "../utils/apiClient";
+import {
+  exchangeAuthorizationCode,
+  clearOAuthConfiguration,
+} from "../services/oauthService";
 
 const Callback = () => {
   const [searchParams] = useSearchParams();
@@ -20,59 +23,36 @@ const Callback = () => {
   const { completeAuthentication } = useAuth();
 
   useEffect(() => {
+    let active = true;
+    let redirectTimer;
     const handleCallback = async () => {
       const code = searchParams.get("code");
-
-      if (!code) {
-        setError("Missing authorization code");
-        setStatus("error");
-        return;
-      }
-
-      const clientId = sessionStorage.getItem("oauth_client_id");
-      const redirectUri = sessionStorage.getItem("oauth_redirect_uri");
-
-      if (!clientId || !redirectUri) {
-        setError("Missing OAuth2 configuration");
-        setStatus("error");
-        return;
-      }
-
       try {
-        const clientSecret =
-          sessionStorage.getItem("oauth_client_secret") ||
-          import.meta.env.REACT_APP_CLIENT_SECRET ||
-          null;
-        const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
-
-        const body = {
-          grant_type: "authorization_code",
+        const data = await exchangeAuthorizationCode(
           code,
-          client_id: clientId,
-          redirect_uri: redirectUri,
-        };
-
-        if (clientSecret) body.client_secret = clientSecret;
-        if (codeVerifier) body.code_verifier = codeVerifier;
-
-        const data = await apiPost("/token", body);
-
-        completeAuthentication(data.access_token, data.refresh_token);
-
-        sessionStorage.removeItem("oauth_client_id");
-        sessionStorage.removeItem("oauth_redirect_uri");
-        sessionStorage.removeItem("pkce_code_verifier");
-        sessionStorage.removeItem("oauth_client_secret");
-
+          searchParams.get("state"),
+        );
+        if (!active) return;
+        await completeAuthentication(data.access_token, data.refresh_token);
+        if (!active) return;
+        clearOAuthConfiguration();
         setStatus("success");
-        window.setTimeout(() => navigate("/practice"), 1500);
+        redirectTimer = window.setTimeout(
+          () => navigate("/practice", { replace: true }),
+          1500,
+        );
       } catch (caughtError) {
+        if (!active) return;
         setError(caughtError?.message || "Token exchange failed");
         setStatus("error");
       }
     };
 
     handleCallback();
+    return () => {
+      active = false;
+      window.clearTimeout(redirectTimer);
+    };
   }, [searchParams, navigate, completeAuthentication]);
 
   return (

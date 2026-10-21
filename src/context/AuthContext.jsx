@@ -1,40 +1,55 @@
-import { createContext, useState, useCallback } from "react";
+import { createContext, useState, useCallback, useEffect } from "react";
 import { apiPost, CODE_MAP, codeMessage } from "../utils/apiClient";
 import { useToast } from "./ToastContext";
+import {
+  clearSession,
+  completeSession,
+  getAccessToken,
+  initializeSession,
+  logoutSession,
+  refreshSession,
+} from "../services/sessionService";
 
 export const AuthContext = createContext();
 
-const decodeUser = (token) => {
-  if (!token) return null;
-  try {
-    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(atob(payload));
-  } catch {
-    return null;
-  }
-};
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() =>
-    decodeUser(localStorage.getItem("accessToken")),
-  );
-  const [accessToken, setAccessToken] = useState(
-    localStorage.getItem("accessToken"),
-  );
-  const [refreshToken, setRefreshToken] = useState(
-    localStorage.getItem("refreshToken"),
-  );
-  const [loading, setLoading] = useState(false);
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { showToast } = useToast();
 
+  useEffect(() => {
+    let active = true;
+    const onSession = (event) => {
+      if (active) setSession(event.detail);
+    };
+    window.addEventListener("auth-session-change", onSession);
+    initializeSession()
+      .catch((err) => {
+        if (active) setError(err.message || "Unable to validate your session.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    const interval = window.setInterval(() => {
+      if (localStorage.getItem("refreshToken"))
+        getAccessToken().catch(() => {});
+    }, 60_000);
+    const onStorage = (event) => {
+      if (event.key === "accessToken" && !event.newValue) clearSession();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("auth-session-change", onSession);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
   const completeAuthentication = useCallback(
-    (newAccessToken, newRefreshToken) => {
-      setAccessToken(newAccessToken);
-      setRefreshToken(newRefreshToken);
-      setUser(decodeUser(newAccessToken));
-      localStorage.setItem("accessToken", newAccessToken);
-      localStorage.setItem("refreshToken", newRefreshToken);
+    async (accessToken, refreshToken) => {
+      await completeSession(accessToken, refreshToken);
     },
     [],
   );
@@ -49,21 +64,16 @@ export const AuthProvider = ({ children }) => {
           { email, password },
           { credentials: "include" },
         );
-
-        completeAuthentication(data.accessToken, data.refreshToken);
-
+        await completeAuthentication(data.accessToken, data.refreshToken);
         return { success: true };
       } catch (err) {
-        const errObj = /** @type {any} */ (err);
-        const code = errObj?.errorCode || "SERVER_ERROR";
+        const code = err.errorCode || "SERVER_ERROR";
         if (code === "VALIDATION_ERROR") {
-          const fieldErrors = CODE_MAP.VALIDATION_ERROR(errObj);
+          const fieldErrors = CODE_MAP.VALIDATION_ERROR(err);
           setError(Object.values(fieldErrors)[0] || "Validation error");
           return { success: false, fieldErrors, errorCode: code };
         }
-
-        const message =
-          codeMessage(code, errObj) || errObj?.message || "Login failed";
+        const message = codeMessage(code, err);
         if (code === "RATE_LIMITED" || code === "SERVER_ERROR")
           showToast(message, "error");
         setError(message);
@@ -77,47 +87,44 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await apiPost("/logout", { refreshToken }, { credentials: "include" });
-    } catch (err) {
-      const errObj = /** @type {any} */ (err);
-      console.error("Logout error:", errObj);
-    } finally {
-      setAccessToken(null);
-      setRefreshToken(null);
-      setUser(null);
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      await logoutSession();
+    } catch {
+      showToast(
+        "Signed out locally. The server could not confirm session revocation.",
+        "error",
+      );
     }
-  }, [refreshToken]);
+  }, [showToast]);
 
   const refreshAccessToken = useCallback(async () => {
-    if (!refreshToken) return false;
     try {
-      const data = await apiPost("/refresh", { refreshToken });
-      completeAuthentication(data.accessToken, data.refreshToken);
-
+      await refreshSession();
       return true;
-    } catch (err) {
-      const errObj = /** @type {any} */ (err);
-      console.error("Token refresh error:", errObj);
-      await logout();
+    } catch {
       return false;
     }
-  }, [refreshToken, logout, completeAuthentication]);
+  }, []);
+
+  const updateProgress = useCallback(({ xp, points }) => {
+    setSession((current) =>
+      current ? { ...current, user: { ...current.user, xp, points } } : current,
+    );
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        accessToken,
-        refreshToken,
+        user: session?.user ?? null,
+        accessToken: session?.accessToken ?? null,
+        refreshToken: session?.refreshToken ?? null,
         loading,
         error,
         login,
         logout,
         completeAuthentication,
         refreshAccessToken,
-        isAuthenticated: !!accessToken,
+        updateProgress,
+        isAuthenticated: Boolean(session?.user),
       }}
     >
       {children}

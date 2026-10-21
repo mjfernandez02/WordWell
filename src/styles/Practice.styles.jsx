@@ -121,6 +121,7 @@ export const AnswerList = (props) => (
 
 const answerColors = {
   unanswered: { color: "app.text.default", background: "app.surface.card", border: "app.border.card" },
+  selected: { color: "app.accent.text", background: "app.accent.subtle", border: "app.accent.text" },
   correct: { color: "app.accent.text", background: "app.accent.subtle", border: "app.accent.text" },
   incorrect: { color: "app.reward.hover", background: "app.reward.subtle", border: "app.reward.default" },
   muted: { color: "app.text.subtle", background: "app.surface.card", border: "app.border.card" },
@@ -142,8 +143,8 @@ export const AnswerOption = ({ result = "unanswered", ...props }) => (
     fontWeight={result === "correct" || result === "incorrect" ? "700" : "400"}
     textAlign="left"
     whiteSpace="normal"
-    cursor={result === "unanswered" ? "pointer" : "default"}
-    _hover={result === "unanswered" ? { borderColor: "app.border.accent", background: "app.surface.hover" } : {}}
+    cursor={result === "unanswered" || result === "selected" ? "pointer" : "default"}
+    _hover={result === "unanswered" || result === "selected" ? { borderColor: "app.border.accent", background: "app.surface.hover" } : {}}
     _focusVisible={{ outline: "2px solid", outlineColor: "app.accent.text", outlineOffset: "3px" }}
     {...props}
   />
@@ -158,7 +159,7 @@ export const AnswerLetter = ({ result = "unanswered", ...props }) => (
     flexShrink="0"
     borderRadius="6px"
     color={result === "correct" || result === "incorrect" ? "app.surface.card" : "inherit"}
-    background={result === "correct" ? "app.action.default" : result === "incorrect" ? "app.reward.hover" : "app.surface.page"}
+    background={result === "correct" ? "app.action.default" : result === "incorrect" ? "app.reward.hover" : result === "selected" ? "app.accent.subtle" : "app.surface.page"}
     fontSize="14px"
     fontWeight="700"
     {...props}

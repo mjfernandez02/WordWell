@@ -22,9 +22,30 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/signup" element={<Register />} />
           <Route path="/callback" element={<Callback />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/practice" element={<Practice />} />
-          <Route path="/pet" element={<MyPet />} />
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <Onboarding />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/practice"
+            element={
+              <ProtectedRoute>
+                <Practice />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pet"
+            element={
+              <ProtectedRoute>
+                <MyPet />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={

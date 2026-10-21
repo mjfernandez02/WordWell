@@ -27,10 +27,11 @@ export const NavbarRoot = (props) => (
     zIndex="10"
     minH="68px"
     px={{ base: "18px", md: "5vw", lg: "72px" }}
-    py="0"
+    py="12px"
     align="center"
     justify="space-between"
-    gap="24px"
+    gap={{ base: "12px", xl: "24px" }}
+    flexWrap="wrap"
     borderBottom="1px solid #e3e7df"
     background="rgba(247, 247, 242, 0.94)"
     {...props}
@@ -78,16 +79,18 @@ export const NavbarName = (props) => (
 );
 
 export const NavbarLinks = (props) => (
-  <Flex align="center" gap="10px" {...props} />
+  <Flex
+    align="center"
+    justify="flex-end"
+    flexWrap="wrap"
+    marginLeft="auto"
+    gap="10px"
+    {...props}
+  />
 );
 
 export const NavbarStats = (props) => (
-  <Flex
-    display={{ base: "none", lg: "flex" }}
-    align="center"
-    gap="8px"
-    {...props}
-  />
+  <Flex display="flex" align="center" gap="8px" {...props} />
 );
 
 export const NavbarStatPill = ({ tone = "brand", ...props }) => (
@@ -98,7 +101,7 @@ export const NavbarStatPill = ({ tone = "brand", ...props }) => (
     justify="center"
     gap="6px"
     border="1px solid"
-    borderColor={tone === "reward" ? "reward.500" : "app.border.accent"}
+    borderColor={tone === "reward" ? "app.reward.default" : "app.border.accent"}
     borderRadius="999px"
     color={tone === "reward" ? "app.reward.default" : "app.accent.text"}
     background="app.surface.card"
@@ -111,10 +114,9 @@ export const NavbarStatPill = ({ tone = "brand", ...props }) => (
 
 export const NavbarAppLinks = (props) => (
   <Flex
-    position={{ base: "static", md: "absolute" }}
-    left={{ md: "50%" }}
-    transform={{ md: "translateX(-50%)" }}
-    marginLeft={{ base: "auto", md: "0" }}
+    order={{ base: "3", xl: "0" }}
+    width={{ base: "100%", xl: "auto" }}
+    justify="center"
     align="center"
     gap={{ base: "2px", sm: "6px" }}
     {...props}
@@ -170,7 +172,7 @@ export const NavbarUser = (props) => (
     border="1px solid"
     borderColor="app.border.card"
     borderRadius="8px"
-    display={{ base: "none", md: "flex" }}
+    display={{ base: "none", xl: "flex" }}
     {...props}
   />
 );
@@ -192,5 +194,12 @@ export const NavbarAvatar = (props) => (
 );
 
 export const NavbarUserName = (props) => (
-  <Text as="span" color="app.text.default" fontSize="13px" {...props} />
+  <Text
+    as="span"
+    color="app.text.default"
+    fontSize="13px"
+    maxW="160px"
+    truncate
+    {...props}
+  />
 );

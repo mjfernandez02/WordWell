@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { createPracticeQuiz } from "../utils/practiceQuiz";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Maple } from "../components/Logos";
+import { useAuth } from "../hooks/useAuth";
+import {
+  getPracticeQuiz,
+  submitPracticeAnswers,
+} from "../services/practiceService";
 import { PetArtwork } from "../styles/Onboarding.styles";
-import zapSrc from "../assets/zap.svg";
-import coinSrc from "../assets/coin.svg";
 import {
   AnswerFeedback,
   FeedbackCopy,
@@ -39,41 +41,111 @@ import {
   WordCard,
   WordType,
 } from "../styles/Practice.styles";
+import zapSrc from "../assets/zap.svg";
+import coinSrc from "../assets/coin.svg";
 
 const answerLetters = ["A", "B", "C"];
 
 const Practice = () => {
-  const [questions, setQuestions] = useState(() => createPracticeQuiz());
+  const { updateProgress } = useAuth();
+  const [quiz, setQuiz] = useState(null);
+  const [quizRequest, setQuizRequest] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [score, setScore] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [result, setResult] = useState(null);
   const [complete, setComplete] = useState(false);
+  const [loadingQuiz, setLoadingQuiz] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const question = questions[questionIndex];
-  const answered = selectedAnswer !== null;
-  const isCorrect = selectedAnswer === question.correctAnswer;
-  const progress = ((questionIndex + 1) / questions.length) * 100;
+  useEffect(() => {
+    let active = true;
 
-  const handleContinue = () => {
-    if (selectedAnswer === null) return;
+    getPracticeQuiz()
+      .then((newQuiz) => {
+        if (!active) return;
+        setQuiz(newQuiz);
+        setQuestionIndex(0);
+        setAnswers({});
+        setResult(null);
+      })
+      .catch((requestError) => {
+        if (active) setError(requestError.message);
+      })
+      .finally(() => {
+        if (active) setLoadingQuiz(false);
+      });
 
-    if (isCorrect) setScore((currentScore) => currentScore + 1);
+    return () => {
+      active = false;
+    };
+  }, [quizRequest]);
 
-    if (questionIndex === questions.length - 1) {
-      setComplete(true);
+  if (loadingQuiz) {
+    return (
+      <PracticePage>
+        <PracticeContent maxW="608px">
+          Loading your practice quiz...
+        </PracticeContent>
+      </PracticePage>
+    );
+  }
+
+  if (!quiz) {
+    return (
+      <PracticePage py={{ base: "30px", md: "38px" }}>
+        <PracticeContent>
+          <CompletionCard>
+            <CompletionHeading>Practice unavailable</CompletionHeading>
+            <CompletionText>{error}</CompletionText>
+            <ContinueButton
+              width="100%"
+              borderRadius="12px"
+              onClick={() => {
+                setLoadingQuiz(true);
+                setError("");
+                setQuizRequest((request) => request + 1);
+              }}
+            >
+              Try again
+            </ContinueButton>
+          </CompletionCard>
+        </PracticeContent>
+      </PracticePage>
+    );
+  }
+
+  const question = quiz.questions[questionIndex];
+  const selectedOptionId = answers[question.id] ?? null;
+  const answered = selectedOptionId !== null;
+  const progress = ((questionIndex + 1) / quiz.questions.length) * 100;
+
+  const handleContinue = async () => {
+    if (!answered || submitting) return;
+
+    if (questionIndex < quiz.questions.length - 1) {
+      setQuestionIndex((currentIndex) => currentIndex + 1);
       return;
     }
 
-    setQuestionIndex((currentIndex) => currentIndex + 1);
-    setSelectedAnswer(null);
-  };
-
-  const restartPractice = () => {
-    setQuestions(createPracticeQuiz());
-    setQuestionIndex(0);
-    setSelectedAnswer(null);
-    setScore(0);
-    setComplete(false);
+    setSubmitting(true);
+    setError("");
+    try {
+      const completion = await submitPracticeAnswers({
+        quizId: quiz.quizId,
+        answers: quiz.questions.map((currentQuestion) => ({
+          questionId: currentQuestion.id,
+          optionId: answers[currentQuestion.id],
+        })),
+      });
+      setResult(completion);
+      updateProgress(completion);
+      setComplete(true);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (complete) {
@@ -95,19 +167,19 @@ const Practice = () => {
             <CompletionText>
               You got{" "}
               <CompletionScore>
-                {score} out of {questions.length}
+                {result.correctAnswers} out of {result.totalQuestions}
               </CompletionScore>{" "}
               correct today.
             </CompletionText>
             <CompletionRewards>
               <CompletionReward>
                 <RewardIcon source={zapSrc} />
-                <RewardValue>+{score * 20} XP</RewardValue>
+                <RewardValue>+{result.xpAwarded} XP</RewardValue>
                 <RewardLabel>Experience Points</RewardLabel>
               </CompletionReward>
               <CompletionReward reward>
                 <RewardIcon source={coinSrc} />
-                <RewardValue>+{score * 5} Coins</RewardValue>
+                <RewardValue>+{result.pointsAwarded} Coins</RewardValue>
                 <RewardLabel>Bonus Gold</RewardLabel>
               </CompletionReward>
             </CompletionRewards>
@@ -118,7 +190,15 @@ const Practice = () => {
               <ContinueButton
                 width="100%"
                 borderRadius="12px"
-                onClick={restartPractice}
+                onClick={() => {
+                  setQuiz(null);
+                  setComplete(false);
+                  setResult(null);
+                  setAnswers({});
+                  setLoadingQuiz(true);
+                  setError("");
+                  setQuizRequest((request) => request + 1);
+                }}
               >
                 Practice again
               </ContinueButton>
@@ -134,13 +214,13 @@ const Practice = () => {
       <PracticeContent maxW="608px">
         <PracticeProgressHeader>
           <QuestionCounter>
-            Question {questionIndex + 1} of {questions.length}
+            Question {questionIndex + 1} of {quiz.questions.length}
           </QuestionCounter>
           <QuestionProgressTrack
             role="progressbar"
             aria-label="Practice progress"
             aria-valuemin="1"
-            aria-valuemax={questions.length}
+            aria-valuemax={quiz.questions.length}
             aria-valuenow={questionIndex + 1}
           >
             <QuestionProgressFill width={`${progress}%`} />
@@ -150,6 +230,11 @@ const Practice = () => {
         <WordCard>
           <PracticeWord>{question.word}</PracticeWord>
           <WordType>{question.type}</WordType>
+          {question.example && (
+            <FeedbackExample marginTop="16px" fontSize="14px">
+              Example: <q>{question.example}</q>
+            </FeedbackExample>
+          )}
         </WordCard>
 
         <AnswerSection aria-labelledby="answer-prompt">
@@ -157,73 +242,58 @@ const Practice = () => {
             Select the correct meaning:
           </AnswerPrompt>
           <AnswerList>
-            {question.answers.map((answer, index) => {
-              const result = !answered
-                ? "unanswered"
-                : index === question.correctAnswer
-                  ? "correct"
-                  : index === selectedAnswer
-                    ? "incorrect"
-                    : "muted";
+            {question.options.map((option, index) => {
+              const selected = selectedOptionId === option.id;
               return (
                 <AnswerOption
-                  key={answer}
-                  result={result}
-                  aria-pressed={selectedAnswer === index}
-                  aria-disabled={answered}
-                  aria-label={`${answerLetters[index]}. ${answer}${result === "correct" ? ". Correct answer" : result === "incorrect" ? ". Your answer, incorrect" : ""}`}
-                  onClick={() => {
-                    if (!answered) setSelectedAnswer(index);
-                  }}
+                  key={option.id}
+                  result={selected ? "selected" : "unanswered"}
+                  aria-pressed={selected}
+                  disabled={submitting}
+                  aria-label={`${answerLetters[index]}. ${option.text}${selected ? ". Selected answer" : ""}`}
+                  onClick={() =>
+                    setAnswers((currentAnswers) => ({
+                      ...currentAnswers,
+                      [question.id]: option.id,
+                    }))
+                  }
                 >
-                  <AnswerLetter result={result} aria-hidden="true">
-                    {result === "correct"
-                      ? "\u2713"
-                      : result === "incorrect"
-                        ? "\u00d7"
-                        : answerLetters[index]}
+                  <AnswerLetter
+                    result={selected ? "selected" : "unanswered"}
+                    aria-hidden="true"
+                  >
+                    {answerLetters[index]}
                   </AnswerLetter>
-                  <AnswerText>{answer}</AnswerText>
+                  <AnswerText>{option.text}</AnswerText>
                 </AnswerOption>
               );
             })}
           </AnswerList>
 
-          <div aria-live="polite" aria-atomic="true">
-            {answered && (
-              <PracticeFooter correct={isCorrect}>
-                <FeedbackPet>
-                  <Maple alt="" />
-                </FeedbackPet>
-                <FeedbackCopy>
-                  <AnswerFeedback correct={isCorrect}>
-                    {isCorrect
-                      ? "Correct \u2014 nicely done!"
-                      : "Not quite \u2014 keep going!"}
-                  </AnswerFeedback>
-                  <FeedbackExample>
-                    Example: <strong>"{question.example}"</strong>
-                  </FeedbackExample>
-                </FeedbackCopy>
-                <ContinueButton
-                  onClick={handleContinue}
-                  background={
-                    isCorrect ? "app.action.default" : "app.reward.default"
-                  }
-                  _hover={{
-                    background: isCorrect
-                      ? "app.action.hover"
-                      : "app.reward.hover",
-                  }}
-                  width={{ base: "100%", sm: "auto" }}
-                >
-                  {questionIndex === questions.length - 1
+          {answered && (
+            <PracticeFooter correct>
+              <FeedbackPet>
+                <Maple alt="" />
+              </FeedbackPet>
+              <FeedbackCopy>
+                <AnswerFeedback correct>Answer saved</AnswerFeedback>
+                {error && (
+                  <FeedbackExample role="alert">{error}</FeedbackExample>
+                )}
+              </FeedbackCopy>
+              <ContinueButton
+                onClick={handleContinue}
+                disabled={submitting}
+                width={{ base: "100%", sm: "auto" }}
+              >
+                {submitting
+                  ? "Checking..."
+                  : questionIndex === quiz.questions.length - 1
                     ? "Finish"
                     : "Next word"}
-                </ContinueButton>
-              </PracticeFooter>
-            )}
-          </div>
+              </ContinueButton>
+            </PracticeFooter>
+          )}
         </AnswerSection>
       </PracticeContent>
     </PracticePage>
