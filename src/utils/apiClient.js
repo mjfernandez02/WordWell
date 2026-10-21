@@ -1,4 +1,4 @@
-import { API_URL } from "../config/api";
+import { API_URL } from "../config/api.js";
 
 export const CODE_MAP = {
   VALIDATION_ERROR: (data) =>
@@ -22,8 +22,8 @@ function buildUrl(path) {
 async function parseJsonSafe(res) {
   try {
     return await res.json();
-  } catch (e) {
-    return console.log(e);
+  } catch {
+    return null;
   }
 }
 
@@ -31,7 +31,7 @@ export async function apiPost(path, body, options = {}) {
   const url = buildUrl(path);
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...options.headers },
     body: JSON.stringify(body),
     credentials: options.credentials || "same-origin",
   });
@@ -40,7 +40,11 @@ export async function apiPost(path, body, options = {}) {
 
   if (!res.ok) {
     const err = {
-      errorCode: data?.errorCode || data?.code || "SERVER_ERROR",
+      status: res.status,
+      errorCode:
+        data?.errorCode ||
+        data?.code ||
+        (res.status === 429 ? "RATE_LIMITED" : "SERVER_ERROR"),
       message: data?.message || data?.error || data?.error_description || null,
       details: data?.details || null,
     };
@@ -61,7 +65,11 @@ export async function apiGet(path, options = {}) {
   const data = await parseJsonSafe(res);
   if (!res.ok) {
     const err = {
-      errorCode: data?.errorCode || data?.code || "SERVER_ERROR",
+      status: res.status,
+      errorCode:
+        data?.errorCode ||
+        data?.code ||
+        (res.status === 429 ? "RATE_LIMITED" : "SERVER_ERROR"),
       message: data?.message || data?.error || null,
       details: data?.details || null,
     };
