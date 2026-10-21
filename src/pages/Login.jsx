@@ -92,7 +92,7 @@ const Login = () => {
           );
         }
       } catch {
-        setError("Unable to sign in. Please try again.");
+        setError("Unable to log in. Please try again.");
       }
     } else {
       setFieldErrors({});
@@ -165,7 +165,7 @@ const Login = () => {
           </LoginField>
 
           <LoginSubmit type="submit" disabled={loading}>
-            {loading ? "Signing in…" : "Sign in →"}
+            {loading ? "Logging in…" : "Log in →"}
           </LoginSubmit>
         </form>
 

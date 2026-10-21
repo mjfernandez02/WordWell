@@ -122,7 +122,7 @@ const Register = () => {
 
         <RegisterFooter>
           Already have an account?{" "}
-          <RegisterFooterLink to="/login">Sign in</RegisterFooterLink>
+          <RegisterFooterLink to="/login">Log in</RegisterFooterLink>
         </RegisterFooter>
       </RegisterCard>
     </RegisterPage>

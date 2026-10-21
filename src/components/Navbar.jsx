@@ -75,8 +75,8 @@ const Navbar = () => {
         </NavbarLinks>
       ) : (
         <NavbarLinks>
-          <NavbarGhostLink to="/login">Sign in</NavbarGhostLink>
-          <NavbarPrimaryLink to="/signup">Get started</NavbarPrimaryLink>
+          <NavbarGhostLink to="/login">Log in</NavbarGhostLink>
+          <NavbarPrimaryLink to="/signup">Sign up</NavbarPrimaryLink>
         </NavbarLinks>
       )}
     </NavbarRoot>
