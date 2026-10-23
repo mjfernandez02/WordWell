@@ -52,6 +52,12 @@ const Navbar = () => {
           <NavbarGhostLink to="/pet" active={pathname === "/pet"}>
             My Pet
           </NavbarGhostLink>
+          <NavbarGhostLink
+            to="/leaderboard"
+            active={pathname === "/leaderboard"}
+          >
+            Leaderboard
+          </NavbarGhostLink>
         </NavbarAppLinks>
       )}
 

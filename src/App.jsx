@@ -10,6 +10,7 @@ import Callback from "./pages/Callback";
 import Onboarding from "./pages/Onboarding";
 import Practice from "./pages/Practice";
 import MyPet from "./pages/MyPet";
+import Leaderboard from "./pages/Leaderboard";
 
 export default function App() {
   return (
@@ -35,6 +36,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Practice />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leaderboard"
+            element={
+              <ProtectedRoute>
+                <Leaderboard />
               </ProtectedRoute>
             }
           />
