@@ -253,35 +253,3 @@ export const FeatureText = (props) => (
     {...props}
   />
 );
-
-export const CreatedBy = (props) => (
-  <Flex
-    width="100%"
-    justify="center"
-    align="center"
-    wrap="wrap"
-    gap=".4rem"
-    mb="2rem"
-    color="#69756f"
-    fontSize={{ base: "md", sm: "sm" }}
-    lineHeight="1.6"
-    textAlign="center"
-    {...props}
-  />
-);
-
-export const CreatedByLink = (props) => (
-  <ChakraLink
-    display="inline-flex"
-    alignItems="center"
-    justifyContent="center"
-    gap="8px"
-    color="#185b46"
-    fontWeight="600"
-    textDecoration="none"
-    _hover={{ textDecoration: "underline" }}
-    isExternal
-    whiteSpace={{ base: "normal", sm: "nowrap" }}
-    {...props}
-  />
-);
