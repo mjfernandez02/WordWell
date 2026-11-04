@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { API_URL } from "../config/api";
 import { CODE_MAP, codeMessage } from "../utils/apiClient";
@@ -181,6 +181,19 @@ const Login = () => {
           <LoginSubmit type="submit" disabled={loading}>
             {loading ? "Logging in…" : "Log in →"}
           </LoginSubmit>
+          <div style={{ textAlign: "right", marginTop: "8px" }}>
+            <Link
+              to="/forgot-password"
+              style={{
+                fontSize: "12px",
+                color: "var(--text-secondary)",
+                textDecoration: "none",
+                cursor: "pointer",
+              }}
+            >
+              Forgot password?
+            </Link>
+          </div>
         </form>
 
         <LoginDivider />
