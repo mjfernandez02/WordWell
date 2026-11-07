@@ -87,9 +87,7 @@ const Practice = () => {
   if (loadingQuiz) {
     return (
       <PracticePage>
-        <PracticeContent maxW="608px">
-          Loading your quiz...
-        </PracticeContent>
+        <PracticeContent maxW="608px">Loading your quiz...</PracticeContent>
       </PracticePage>
     );
   }
@@ -184,7 +182,7 @@ const Practice = () => {
                 "& img": { display: "block", width: "112px", height: "112px" },
               }}
             >
-              <Maple />
+              <Maple mood="excited" />
             </PetArtwork>
             <CompletionHeading>Quiz Complete!</CompletionHeading>
             <CompletionText>
@@ -291,10 +289,7 @@ const Practice = () => {
                     }))
                   }
                 >
-                  <AnswerLetter
-                    result={optionResult}
-                    aria-hidden="true"
-                  >
+                  <AnswerLetter result={optionResult} aria-hidden="true">
                     {answerLetters[index]}
                   </AnswerLetter>
                   <AnswerText>{option.text}</AnswerText>
@@ -306,10 +301,12 @@ const Practice = () => {
           {answered && !answerFeedback && (
             <PracticeFooter correct>
               <FeedbackPet>
-                <Maple alt="" />
+                <Maple mood="thinking" alt="" />
               </FeedbackPet>
               <FeedbackCopy>
-                <AnswerFeedback correct>Is this your final answer?</AnswerFeedback>
+                <AnswerFeedback correct>
+                  Is this your final answer?
+                </AnswerFeedback>
                 <FeedbackExample>
                   You will see the correct answer after you confirm.
                 </FeedbackExample>
@@ -325,11 +322,13 @@ const Practice = () => {
                 {submitting ? "Checking..." : "Yes, submit"}
               </ContinueButton>
               <VisitPetButton
-                onClick={() => setAnswers((currentAnswers) => {
-                  const nextAnswers = { ...currentAnswers };
-                  delete nextAnswers[question.id];
-                  return nextAnswers;
-                })}
+                onClick={() =>
+                  setAnswers((currentAnswers) => {
+                    const nextAnswers = { ...currentAnswers };
+                    delete nextAnswers[question.id];
+                    return nextAnswers;
+                  })
+                }
                 disabled={submitting}
                 width={{ base: "100%", sm: "auto" }}
               >
@@ -340,16 +339,19 @@ const Practice = () => {
           {answerFeedback && (
             <PracticeFooter correct={answerFeedback.correct}>
               <FeedbackPet>
-                <Maple alt="" />
+                <Maple mood={answerFeedback.correct ? "happy" : "sad"} alt="" />
               </FeedbackPet>
               <FeedbackCopy>
                 <AnswerFeedback correct={answerFeedback.correct}>
                   {answerFeedback.correct ? "Correct!" : "Not quite."}
                 </AnswerFeedback>
                 <FeedbackExample>
-                  Correct answer: {question.options.find(
-                    (option) => option.id === answerFeedback.correctOptionId,
-                  )?.text}
+                  Correct answer:{" "}
+                  {
+                    question.options.find(
+                      (option) => option.id === answerFeedback.correctOptionId,
+                    )?.text
+                  }
                 </FeedbackExample>
                 {error && (
                   <FeedbackExample role="alert">{error}</FeedbackExample>

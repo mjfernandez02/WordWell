@@ -120,11 +120,31 @@ export const AnswerList = (props) => (
 );
 
 const answerColors = {
-  unanswered: { color: "app.text.default", background: "app.surface.card", border: "app.border.card" },
-  selected: { color: "app.accent.text", background: "app.accent.subtle", border: "app.accent.text" },
-  correct: { color: "app.accent.text", background: "app.accent.subtle", border: "app.accent.text" },
-  incorrect: { color: "app.reward.hover", background: "app.reward.subtle", border: "app.reward.default" },
-  muted: { color: "app.text.subtle", background: "app.surface.card", border: "app.border.card" },
+  unanswered: {
+    color: "app.text.default",
+    background: "app.surface.card",
+    border: "app.border.card",
+  },
+  selected: {
+    color: "app.accent.text",
+    background: "app.accent.subtle",
+    border: "app.accent.text",
+  },
+  correct: {
+    color: "app.accent.text",
+    background: "app.accent.subtle",
+    border: "app.accent.text",
+  },
+  incorrect: {
+    color: "app.reward.hover",
+    background: "app.reward.subtle",
+    border: "app.reward.default",
+  },
+  muted: {
+    color: "app.text.subtle",
+    background: "app.surface.card",
+    border: "app.border.card",
+  },
 };
 
 export const AnswerOption = ({ result = "unanswered", ...props }) => (
@@ -143,9 +163,19 @@ export const AnswerOption = ({ result = "unanswered", ...props }) => (
     fontWeight={result === "correct" || result === "incorrect" ? "700" : "400"}
     textAlign="left"
     whiteSpace="normal"
-    cursor={result === "unanswered" || result === "selected" ? "pointer" : "default"}
-    _hover={result === "unanswered" || result === "selected" ? { borderColor: "app.border.accent", background: "app.surface.hover" } : {}}
-    _focusVisible={{ outline: "2px solid", outlineColor: "app.accent.text", outlineOffset: "3px" }}
+    cursor={
+      result === "unanswered" || result === "selected" ? "pointer" : "default"
+    }
+    _hover={
+      result === "unanswered" || result === "selected"
+        ? { borderColor: "app.border.accent", background: "app.surface.hover" }
+        : {}
+    }
+    _focusVisible={{
+      outline: "2px solid",
+      outlineColor: "app.accent.text",
+      outlineOffset: "3px",
+    }}
     {...props}
   />
 );
@@ -158,8 +188,20 @@ export const AnswerLetter = ({ result = "unanswered", ...props }) => (
     justify="center"
     flexShrink="0"
     borderRadius="6px"
-    color={result === "correct" || result === "incorrect" ? "app.surface.card" : "inherit"}
-    background={result === "correct" ? "app.action.default" : result === "incorrect" ? "app.reward.hover" : result === "selected" ? "app.accent.subtle" : "app.surface.page"}
+    color={
+      result === "correct" || result === "incorrect"
+        ? "app.surface.card"
+        : "inherit"
+    }
+    background={
+      result === "correct"
+        ? "app.action.default"
+        : result === "incorrect"
+          ? "app.reward.hover"
+          : result === "selected"
+            ? "app.accent.subtle"
+            : "app.surface.page"
+    }
     fontSize="14px"
     fontWeight="700"
     {...props}
@@ -187,14 +229,32 @@ export const PracticeFooter = ({ correct = false, ...props }) => (
 );
 
 export const FeedbackPet = (props) => (
-  <Box flexShrink="0" width="54px" height="54px"
-    css={{ "& img": { width: "100%", height: "100%", display: "block" } }} {...props} />
+  <Box
+    flexShrink="0"
+    width="54px"
+    height="54px"
+    css={{
+      "& img": {
+        width: "100%",
+        height: "100%",
+        display: "block",
+        objectFit: "contain",
+      },
+    }}
+    {...props}
+  />
 );
 
 export const FeedbackCopy = (props) => <Box flex="1" minW="0" {...props} />;
 
 export const FeedbackExample = (props) => (
-  <Text marginTop="4px" color="app.text.default" fontSize="12px" lineHeight="1.6" {...props} />
+  <Text
+    marginTop="4px"
+    color="app.text.default"
+    fontSize="12px"
+    lineHeight="1.6"
+    {...props}
+  />
 );
 
 export const AnswerFeedback = ({ correct = false, ...props }) => (

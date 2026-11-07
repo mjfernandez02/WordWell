@@ -102,7 +102,7 @@ const Login = () => {
       setError(null);
       const result = await login(email, password);
       if (result && result.success) {
-        navigate("/quiz");
+        navigate("/onboarding", { replace: true });
       } else {
         if (result && result.fieldErrors) {
           setFieldErrors(result.fieldErrors);

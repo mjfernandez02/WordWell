@@ -10,7 +10,7 @@ export const OnboardingPage = (props) => (
   <Box
     minH="calc(100vh - 68px)"
     color="app.text.default"
-    background="app.surface.page"
+    background="radial-gradient(circle at 85% 5%, #f4ead4 0%, transparent 28%), app.surface.page"
     {...props}
   />
 );
@@ -38,13 +38,28 @@ export const OnboardingLeftColumn = (props) => (
   <Grid gap={{ base: "22px", md: "30px" }} {...props} />
 );
 
+export const OnboardingRightColumn = (props) => (
+  <Grid gap={{ base: "22px", md: "30px" }} {...props} />
+);
+
 export const DashboardCard = (props) => (
   <Box
     border="1px solid"
     borderColor="app.border.card"
     borderRadius={{ base: "14px", md: "18px" }}
     background="app.surface.card"
-    boxShadow="0 12px 35px rgba(35, 55, 45, 0.06)"
+    boxShadow="0 12px 35px rgba(35, 55, 45, 0.07)"
+    {...props}
+  />
+);
+
+export const DashboardEyebrow = (props) => (
+  <Text
+    color="app.accent.text"
+    fontSize="10px"
+    fontWeight="800"
+    letterSpacing="0.12em"
+    textTransform="uppercase"
     {...props}
   />
 );
@@ -52,7 +67,21 @@ export const DashboardCard = (props) => (
 export const WelcomeCard = (props) => (
   <DashboardCard
     height={{ base: "auto", md: "316px" }}
+    position="relative"
+    overflow="hidden"
     padding={{ base: "34px 26px", md: "50px" }}
+    background="linear-gradient(135deg, #fffefb 0%, #f6f2e7 100%)"
+    _after={{
+      content: '""',
+      position: "absolute",
+      width: "180px",
+      height: "180px",
+      right: "-70px",
+      top: "-75px",
+      borderRadius: "full",
+      background: "#e7f0e8",
+      opacity: 0.8,
+    }}
     {...props}
   />
 );
@@ -60,7 +89,9 @@ export const WelcomeCard = (props) => (
 export const WelcomeHeading = (props) => (
   <Heading
     as="h1"
-    margin="0"
+    position="relative"
+    zIndex="1"
+    margin="12px 0 0"
     color="app.text.heading"
     fontFamily="Georgia, serif"
     fontSize={{ base: "34px", md: "42px" }}
@@ -73,7 +104,9 @@ export const WelcomeHeading = (props) => (
 
 export const WelcomeText = (props) => (
   <Text
-    maxW="650px"
+    position="relative"
+    zIndex="1"
+    maxW="590px"
     margin={{ base: "15px 0 25px", md: "14px 0 28px" }}
     color="app.text.body"
     fontSize={{ base: "15px", md: "16px" }}
@@ -97,6 +130,9 @@ export const PrimaryAction = (props) => (
     background="app.action.default"
     fontSize="13px"
     fontWeight="700"
+    position="relative"
+    zIndex="1"
+    boxShadow="0 8px 16px rgba(27, 94, 70, 0.18)"
     {...linkReset}
     _hover={{ background: "app.action.hover", textDecoration: "none" }}
   >
@@ -106,7 +142,7 @@ export const PrimaryAction = (props) => (
 
 export const GoalCard = (props) => (
   <DashboardCard
-    minH={{ base: "auto", md: "187px" }}
+    minH={{ base: "auto", md: "205px" }}
     padding={{ base: "28px 24px", md: "38px 39px" }}
     {...props}
   />
@@ -139,7 +175,7 @@ export const GoalCount = (props) => (
 
 export const ProgressTrack = (props) => (
   <Box
-    height="14px"
+    height="12px"
     margin="20px 0 20px"
     overflow="hidden"
     borderRadius="999px"
@@ -168,6 +204,7 @@ export const PetCard = (props) => (
     minH={{ base: "auto", lg: "485px" }}
     padding={{ base: "34px 24px", md: "46px 39px 40px" }}
     textAlign="center"
+    background="linear-gradient(180deg, #fffdf8 0%, #fff 100%)"
     {...props}
   />
 );
@@ -180,12 +217,14 @@ export const PetArtwork = (props) => (
     align="center"
     justify="center"
     borderRadius="50%"
-    background="app.reward.subtle"
+    background="radial-gradient(circle at 35% 30%, #fff4d8, #f0d9a7)"
+    boxShadow="inset 0 0 0 8px rgba(255,255,255,0.55), 0 14px 26px rgba(104, 74, 30, 0.10)"
     css={{
       "& img": {
         display: "block",
         width: "140px",
         height: "140px",
+        objectFit: "contain",
       },
     }}
     {...props}
@@ -240,4 +279,50 @@ export const PetAction = (props) => (
   >
     <RouterLink {...props} />
   </Link>
+);
+
+export const PathCard = (props) => (
+  <DashboardCard padding={{ base: "28px 24px", md: "34px 39px" }} {...props} />
+);
+
+export const PathItem = (props) => (
+  <Flex
+    align="flex-start"
+    gap="13px"
+    py="15px"
+    borderBottom="1px solid"
+    borderColor="app.border.card"
+    _last={{ borderBottom: "none", pb: 0 }}
+    {...props}
+  />
+);
+
+export const PathItemIcon = (props) => (
+  <Flex
+    flexShrink="0"
+    width="30px"
+    height="30px"
+    align="center"
+    justify="center"
+    borderRadius="full"
+    color="app.accent.text"
+    background="app.accent.subtle"
+    fontSize="10px"
+    fontWeight="800"
+    {...props}
+  />
+);
+
+export const PathItemCopy = (props) => (
+  <Text color="app.text.body" fontSize="13px" lineHeight="1.55" {...props} />
+);
+export const PathItemTitle = (props) => (
+  <Text
+    display="block"
+    mb="2px"
+    color="app.text.heading"
+    fontSize="14px"
+    fontWeight="750"
+    {...props}
+  />
 );
