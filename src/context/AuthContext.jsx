@@ -1,5 +1,5 @@
 import { createContext, useState, useCallback, useEffect } from "react";
-import { apiPost, CODE_MAP, codeMessage } from "../utils/apiClient";
+import { apiPost, apiPut, CODE_MAP, codeMessage } from "../utils/apiClient";
 import { useToast } from "./ToastContext";
 import {
   clearSession,
@@ -111,6 +111,18 @@ export const AuthProvider = ({ children }) => {
     );
   }, []);
 
+  const updateUsername = useCallback(async (username) => {
+    const { user } = await apiPut(
+      "/username",
+      { username },
+      {
+        headers: { Authorization: `Bearer ${await getAccessToken()}` },
+      },
+    );
+    setSession((current) => (current ? { ...current, user } : current));
+    return user;
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -124,6 +136,7 @@ export const AuthProvider = ({ children }) => {
         completeAuthentication,
         refreshAccessToken,
         updateProgress,
+        updateUsername,
         isAuthenticated: Boolean(session?.user),
       }}
     >
