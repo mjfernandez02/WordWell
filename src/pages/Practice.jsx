@@ -51,16 +51,18 @@ const Practice = () => {
   const { updateProgress } = useAuth();
   const [quiz, setQuiz] = useState(null);
   const [quizRequest, setQuizRequest] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [answerFeedback, setAnswerFeedback] = useState(null);
   const [result, setResult] = useState(null);
   const [complete, setComplete] = useState(false);
-  const [loadingQuiz, setLoadingQuiz] = useState(true);
+  const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!hasStarted) return undefined;
     let active = true;
 
     getPracticeQuiz()
@@ -82,7 +84,44 @@ const Practice = () => {
     return () => {
       active = false;
     };
-  }, [quizRequest]);
+  }, [hasStarted, quizRequest]);
+
+  if (!hasStarted) {
+    return (
+      <PracticePage py={{ base: "30px", md: "38px" }}>
+        <PracticeContent maxW="608px">
+          <CompletionCard>
+            <PetArtwork
+              width="126px"
+              height="126px"
+              margin="0 auto 24px"
+              css={{
+                "& img": { display: "block", width: "146px", height: "146px" },
+              }}
+            >
+              <Maple mood="supportive" />
+            </PetArtwork>
+            <CompletionHeading>Ready for a quiz?</CompletionHeading>
+            <CompletionText>
+              Your quiz will be prepared once you begin. Take your
+              time—there&apos;s no question waiting until you&apos;re ready.
+            </CompletionText>
+            <ContinueButton
+              width="100%"
+              borderRadius="12px"
+              onClick={() => {
+                setError("");
+                setLoadingQuiz(true);
+                setHasStarted(true);
+              }}
+            >
+              Start quiz
+            </ContinueButton>
+          </CompletionCard>
+        </PracticeContent>
+      </PracticePage>
+    );
+  }
 
   if (loadingQuiz) {
     return (
@@ -217,9 +256,8 @@ const Practice = () => {
                   setResult(null);
                   setAnswers({});
                   setAnswerFeedback(null);
-                  setLoadingQuiz(true);
                   setError("");
-                  setQuizRequest((request) => request + 1);
+                  setHasStarted(false);
                 }}
               >
                 Take another quiz
