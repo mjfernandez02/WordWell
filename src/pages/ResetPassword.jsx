@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import {
@@ -7,7 +7,7 @@ import {
   ResetPasswordTitle,
   ResetPasswordText
 } from '../styles/ResetPassword.styles';
-import { LoginField, LoginSubmit } from '../styles/Login.styles';
+import { LoginField, LoginInput, LoginSubmit } from '../styles/Login.styles';
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -20,6 +20,14 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!token) {
+      setError('This password-reset link is invalid. Please request a new one.');
+      return;
+    }
+    if (!password) {
+      setError('Enter a new password.');
+      return;
+    }
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -47,20 +55,26 @@ const ResetPassword = () => {
           Please enter your new password below.
         </ResetPasswordText>
         <form onSubmit={handleSubmit}>
-          <LoginField
-            type="password"
-            placeholder="New Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <LoginField
-            type="password"
-            placeholder="Confirm New Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
+          <LoginField>
+            <LoginInput
+              type="password"
+              placeholder="New Password"
+              aria-label="New password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </LoginField>
+          <LoginField>
+            <LoginInput
+              type="password"
+              placeholder="Confirm New Password"
+              aria-label="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </LoginField>
           <LoginSubmit type="submit" disabled={loading}>
             {loading ? 'Updating...' : 'Reset Password'}
           </LoginSubmit>
