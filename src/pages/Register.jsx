@@ -24,7 +24,7 @@ import {
 } from "../styles/Register.styles";
 
 const Register = () => {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -92,6 +92,20 @@ const Register = () => {
         )}
 
         <form onSubmit={handleSubmit}>
+          <RegisterField>
+            <RegisterLabel>Username</RegisterLabel>
+            <RegisterInput
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              placeholder="word_learner"
+              required
+              minLength="3"
+              maxLength="24"
+              pattern="[A-Za-z0-9_]+"
+              autoComplete="username"
+            />
+          </RegisterField>
+
           <RegisterField>
             <RegisterLabel>Email address</RegisterLabel>
             <RegisterInput
