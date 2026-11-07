@@ -9,7 +9,7 @@ import Register from "./pages/Register";
 import Callback from "./pages/Callback";
 import Onboarding from "./pages/Onboarding";
 import Practice from "./pages/Practice";
-import MyPet from "./pages/MyPet";
+import Rewards from "./pages/Rewards";
 import Leaderboard from "./pages/Leaderboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -59,13 +59,14 @@ export default function App() {
             }
           />
           <Route
-            path="/pet"
+            path="/rewards"
             element={
               <ProtectedRoute>
-                <MyPet />
+                <Rewards />
               </ProtectedRoute>
             }
           />
+          <Route path="/pet" element={<Navigate to="/rewards" replace />} />
           <Route
             path="/dashboard"
             element={

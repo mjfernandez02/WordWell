@@ -208,7 +208,7 @@ const Practice = () => {
             </CompletionRewards>
             <CompletionActions>
               <VisitPetButton asChild>
-                <Link to="/pet">Visit my pet</Link>
+                <Link to="/rewards">View rewards</Link>
               </VisitPetButton>
               <ContinueButton
                 width="100%"
