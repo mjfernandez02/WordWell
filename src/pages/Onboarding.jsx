@@ -131,7 +131,7 @@ const CollectionPreview = ({ shelfItems, earnedAchievements }) => (
 
 const Onboarding = () => {
   const { user } = useAuth();
-  const name = user?.name || user?.email?.split("@")[0] || "word explorer";
+  const name = user?.username || user?.name || "word explorer";
   const [rewards, setRewards] = useState(null);
 
   useEffect(() => {

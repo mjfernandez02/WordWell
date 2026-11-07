@@ -25,8 +25,8 @@ const Navbar = () => {
   const experience = user?.xp ?? 0;
   const coins = user?.points ?? 0;
 
-  const initials = user?.email
-    ? user.email.split("@")[0].slice(0, 2).toUpperCase()
+  const initials = user?.username
+    ? user.username.slice(0, 2).toUpperCase()
     : user?.name
       ? user.name.slice(0, 2).toUpperCase()
       : "??";
@@ -74,7 +74,7 @@ const Navbar = () => {
           <NavbarUser>
             <NavbarAvatar>{initials}</NavbarAvatar>
             <NavbarUserName>
-              {user?.email || user?.name || "User"}
+              {user?.username || user?.name || "User"}
             </NavbarUserName>
           </NavbarUser>
           <NavbarOutlineButton onClick={logout}>Sign out</NavbarOutlineButton>

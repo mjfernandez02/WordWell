@@ -46,11 +46,15 @@ const Leaderboard = () => {
           <LeaderboardXp>Experience</LeaderboardXp>
         </LeaderboardEntry>
         {loading ? (
-          <LeaderboardEntry role="status">Loading leaderboard...</LeaderboardEntry>
+          <LeaderboardEntry role="status">
+            Loading leaderboard...
+          </LeaderboardEntry>
         ) : error ? (
           <LeaderboardEntry role="alert">{error}</LeaderboardEntry>
         ) : entries.length === 0 ? (
-          <LeaderboardEntry>No learners on the leaderboard yet.</LeaderboardEntry>
+          <LeaderboardEntry>
+            No learners on the leaderboard yet.
+          </LeaderboardEntry>
         ) : (
           entries.map((entry) => (
             <LeaderboardEntry
@@ -59,7 +63,7 @@ const Leaderboard = () => {
             >
               <LeaderboardRank>#{entry.rank}</LeaderboardRank>
               <LeaderboardUser>
-                {entry.email || "Learner"}
+                {entry.username || "Learner"}
                 {entry.userId === user?.id ? " (You)" : ""}
               </LeaderboardUser>
               <LeaderboardXp>{entry.xp.toLocaleString()} XP</LeaderboardXp>
