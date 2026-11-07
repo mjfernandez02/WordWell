@@ -53,8 +53,8 @@ const Onboarding = () => (
             <br />
             Let&apos;s take Maple the Fox on a learning journey!
           </WelcomeText>
-          <PrimaryAction to="/practice">
-            Start practice <ArrowIcon />
+          <PrimaryAction to="/quiz">
+            Start quiz <ArrowIcon />
           </PrimaryAction>
         </WelcomeCard>
 
@@ -73,7 +73,7 @@ const Onboarding = () => (
             <ProgressFill />
           </ProgressTrack>
           <GoalDescription>
-            Complete today&apos;s practice session to hit your daily goal and
+            Complete today&apos;s quiz to hit your daily goal and
             earn bonus coins!
           </GoalDescription>
         </GoalCard>

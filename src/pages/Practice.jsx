@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Maple } from "../components/Logos";
 import { useAuth } from "../hooks/useAuth";
 import {
+  checkPracticeAnswer,
   getPracticeQuiz,
   submitPracticeAnswers,
 } from "../services/practiceService";
@@ -52,6 +53,7 @@ const Practice = () => {
   const [quizRequest, setQuizRequest] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [answerFeedback, setAnswerFeedback] = useState(null);
   const [result, setResult] = useState(null);
   const [complete, setComplete] = useState(false);
   const [loadingQuiz, setLoadingQuiz] = useState(true);
@@ -67,6 +69,7 @@ const Practice = () => {
         setQuiz(newQuiz);
         setQuestionIndex(0);
         setAnswers({});
+        setAnswerFeedback(null);
         setResult(null);
       })
       .catch((requestError) => {
@@ -85,7 +88,7 @@ const Practice = () => {
     return (
       <PracticePage>
         <PracticeContent maxW="608px">
-          Loading your practice quiz...
+          Loading your quiz...
         </PracticeContent>
       </PracticePage>
     );
@@ -96,7 +99,7 @@ const Practice = () => {
       <PracticePage py={{ base: "30px", md: "38px" }}>
         <PracticeContent>
           <CompletionCard>
-            <CompletionHeading>Practice unavailable</CompletionHeading>
+            <CompletionHeading>Quiz unavailable</CompletionHeading>
             <CompletionText>{error}</CompletionText>
             <ContinueButton
               width="100%"
@@ -120,11 +123,31 @@ const Practice = () => {
   const answered = selectedOptionId !== null;
   const progress = ((questionIndex + 1) / quiz.questions.length) * 100;
 
-  const handleContinue = async () => {
+  const handleCheckAnswer = async () => {
     if (!answered || submitting) return;
+
+    setSubmitting(true);
+    setError("");
+    try {
+      const feedback = await checkPracticeAnswer({
+        quizId: quiz.quizId,
+        questionId: question.id,
+        optionId: selectedOptionId,
+      });
+      setAnswerFeedback(feedback);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleContinue = async () => {
+    if (!answerFeedback || submitting) return;
 
     if (questionIndex < quiz.questions.length - 1) {
       setQuestionIndex((currentIndex) => currentIndex + 1);
+      setAnswerFeedback(null);
       return;
     }
 
@@ -163,7 +186,7 @@ const Practice = () => {
             >
               <Maple />
             </PetArtwork>
-            <CompletionHeading>Practice Complete!</CompletionHeading>
+            <CompletionHeading>Quiz Complete!</CompletionHeading>
             <CompletionText>
               You got{" "}
               <CompletionScore>
@@ -195,12 +218,13 @@ const Practice = () => {
                   setComplete(false);
                   setResult(null);
                   setAnswers({});
+                  setAnswerFeedback(null);
                   setLoadingQuiz(true);
                   setError("");
                   setQuizRequest((request) => request + 1);
                 }}
               >
-                Practice again
+                Take another quiz
               </ContinueButton>
             </CompletionActions>
           </CompletionCard>
@@ -218,7 +242,7 @@ const Practice = () => {
           </QuestionCounter>
           <QuestionProgressTrack
             role="progressbar"
-            aria-label="Practice progress"
+            aria-label="Quiz progress"
             aria-valuemin="1"
             aria-valuemax={quiz.questions.length}
             aria-valuenow={questionIndex + 1}
@@ -244,12 +268,21 @@ const Practice = () => {
           <AnswerList>
             {question.options.map((option, index) => {
               const selected = selectedOptionId === option.id;
+              const optionResult = answerFeedback
+                ? option.id === answerFeedback.correctOptionId
+                  ? "correct"
+                  : selected
+                    ? "incorrect"
+                    : "muted"
+                : selected
+                  ? "selected"
+                  : "unanswered";
               return (
                 <AnswerOption
                   key={option.id}
-                  result={selected ? "selected" : "unanswered"}
+                  result={optionResult}
                   aria-pressed={selected}
-                  disabled={submitting}
+                  disabled={submitting || Boolean(answerFeedback)}
                   aria-label={`${answerLetters[index]}. ${option.text}${selected ? ". Selected answer" : ""}`}
                   onClick={() =>
                     setAnswers((currentAnswers) => ({
@@ -259,7 +292,7 @@ const Practice = () => {
                   }
                 >
                   <AnswerLetter
-                    result={selected ? "selected" : "unanswered"}
+                    result={optionResult}
                     aria-hidden="true"
                   >
                     {answerLetters[index]}
@@ -270,13 +303,54 @@ const Practice = () => {
             })}
           </AnswerList>
 
-          {answered && (
+          {answered && !answerFeedback && (
             <PracticeFooter correct>
               <FeedbackPet>
                 <Maple alt="" />
               </FeedbackPet>
               <FeedbackCopy>
-                <AnswerFeedback correct>Answer saved</AnswerFeedback>
+                <AnswerFeedback correct>Is this your final answer?</AnswerFeedback>
+                <FeedbackExample>
+                  You will see the correct answer after you confirm.
+                </FeedbackExample>
+                {error && (
+                  <FeedbackExample role="alert">{error}</FeedbackExample>
+                )}
+              </FeedbackCopy>
+              <ContinueButton
+                onClick={handleCheckAnswer}
+                disabled={submitting}
+                width={{ base: "100%", sm: "auto" }}
+              >
+                {submitting ? "Checking..." : "Yes, submit"}
+              </ContinueButton>
+              <VisitPetButton
+                onClick={() => setAnswers((currentAnswers) => {
+                  const nextAnswers = { ...currentAnswers };
+                  delete nextAnswers[question.id];
+                  return nextAnswers;
+                })}
+                disabled={submitting}
+                width={{ base: "100%", sm: "auto" }}
+              >
+                Change answer
+              </VisitPetButton>
+            </PracticeFooter>
+          )}
+          {answerFeedback && (
+            <PracticeFooter correct={answerFeedback.correct}>
+              <FeedbackPet>
+                <Maple alt="" />
+              </FeedbackPet>
+              <FeedbackCopy>
+                <AnswerFeedback correct={answerFeedback.correct}>
+                  {answerFeedback.correct ? "Correct!" : "Not quite."}
+                </AnswerFeedback>
+                <FeedbackExample>
+                  Correct answer: {question.options.find(
+                    (option) => option.id === answerFeedback.correctOptionId,
+                  )?.text}
+                </FeedbackExample>
                 {error && (
                   <FeedbackExample role="alert">{error}</FeedbackExample>
                 )}
@@ -287,10 +361,10 @@ const Practice = () => {
                 width={{ base: "100%", sm: "auto" }}
               >
                 {submitting
-                  ? "Checking..."
+                  ? "Finishing..."
                   : questionIndex === quiz.questions.length - 1
-                    ? "Finish"
-                    : "Next word"}
+                    ? "Finish quiz"
+                    : "Next question"}
               </ContinueButton>
             </PracticeFooter>
           )}

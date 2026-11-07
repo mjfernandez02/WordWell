@@ -46,8 +46,8 @@ const Navbar = () => {
           >
             Home
           </NavbarGhostLink>
-          <NavbarGhostLink to="/practice" active={pathname === "/practice"}>
-            Practice
+          <NavbarGhostLink to="/quiz" active={pathname === "/quiz"}>
+            Quiz
           </NavbarGhostLink>
           <NavbarGhostLink to="/pet" active={pathname === "/pet"}>
             My Pet

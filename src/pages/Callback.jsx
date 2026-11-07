@@ -38,7 +38,7 @@ const Callback = () => {
         clearOAuthConfiguration();
         setStatus("success");
         redirectTimer = window.setTimeout(
-          () => navigate("/practice", { replace: true }),
+          () => navigate("/quiz", { replace: true }),
           1500,
         );
       } catch (caughtError) {
@@ -74,7 +74,7 @@ const Callback = () => {
               ✓
             </Text>
             <Heading size="lg">Login successful</Heading>
-            <Text color="fg.muted">Redirecting you to practice…</Text>
+            <Text color="fg.muted">Redirecting you to your quiz…</Text>
           </VStack>
         )}
 

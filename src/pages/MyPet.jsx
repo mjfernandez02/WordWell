@@ -85,7 +85,7 @@ const MyPet = () => {
           <span role="status">
             {message ||
               ((user?.points ?? 0) < 10
-                ? "Earn 10 coins through practice to feed Maple."
+                ? "Earn 10 coins through quizzes to feed Maple."
                 : "Maple would love some berries!")}
           </span>
         </PetMessage>

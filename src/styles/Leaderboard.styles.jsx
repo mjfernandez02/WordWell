@@ -16,7 +16,7 @@ export const LeaderboardHeader = (props) => (
   <Box width="100%" maxW="900px" mx="auto" mb="24px" {...props}>
     <LeaderboardTitle>XP Leaderboard</LeaderboardTitle>
     <Text mt="8px" color="app.text.body">
-      See how your vocabulary practice stacks up.
+      See how your vocabulary quiz scores stack up.
     </Text>
   </Box>
 );

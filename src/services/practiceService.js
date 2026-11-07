@@ -44,5 +44,6 @@ export const getPracticeQuiz = () => {
 };
 
 export const submitPracticeAnswers = (answers) => request("/complete", answers);
+export const checkPracticeAnswer = (answer) => request("/check-answer", answer);
 export const feedPet = () => request("/pet/feed", {});
 export const getLeaderboard = () => request("/leaderboard");

@@ -42,13 +42,14 @@ export default function App() {
             }
           />
           <Route
-            path="/practice"
+            path="/quiz"
             element={
               <ProtectedRoute>
                 <Practice />
               </ProtectedRoute>
             }
           />
+          <Route path="/practice" element={<Navigate to="/quiz" replace />} />
           <Route
             path="/leaderboard"
             element={
