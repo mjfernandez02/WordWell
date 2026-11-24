@@ -66,7 +66,7 @@ export const DashboardEyebrow = (props) => (
 
 export const WelcomeCard = (props) => (
   <DashboardCard
-    height={{ base: "auto", md: "316px" }}
+    minH={{ base: "auto", md: "316px" }}
     position="relative"
     overflow="hidden"
     padding={{ base: "34px 26px", md: "50px" }}
@@ -107,7 +107,7 @@ export const WelcomeText = (props) => (
     position="relative"
     zIndex="1"
     maxW="590px"
-    margin={{ base: "15px 0 25px", md: "14px 0 28px" }}
+    margin={{ base: "15px 0 18px", md: "14px 0 20px" }}
     color="app.text.body"
     fontSize={{ base: "15px", md: "16px" }}
     lineHeight="1.7"
