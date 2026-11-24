@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { apiPost, CODE_MAP, codeMessage } from "../utils/apiClient";
 import { useToast } from "../context/ToastContext";
 import {
@@ -28,17 +29,22 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!acceptedTerms) {
+      setError("Please agree to the Terms and Conditions to create an account.");
+      return;
+    }
     setLoading(true);
     setError(null);
 
     try {
-      await apiPost("/register", form);
+      await apiPost("/register", { ...form, acceptedTerms });
       setSuccess(true);
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
@@ -141,7 +147,12 @@ const Register = () => {
             </RegisterPasswordField>
           </RegisterField>
 
-          <RegisterSubmit type="submit" disabled={loading || success}>
+          <label style={{ display: "flex", gap: 9, alignItems: "flex-start", margin: "0 0 18px", color: "#53635a", fontSize: 13, lineHeight: 1.5 }}>
+            <input type="checkbox" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} required style={{ marginTop: 3 }} />
+            <span>I agree to the <RouterLink to="/terms" style={{ color: "#185b46", fontWeight: 700 }}>Terms and Conditions</RouterLink>.</span>
+          </label>
+
+          <RegisterSubmit type="submit" disabled={loading || success || !acceptedTerms}>
             {loading ? "Creating account…" : "Create account →"}
           </RegisterSubmit>
         </form>

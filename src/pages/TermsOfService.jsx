@@ -5,7 +5,7 @@ export default function TermsOfService() {
   return (
     <Container maxW="container.md" py={10}>
       <VStack align="start" gap={6}>
-        <Heading size="xl">Terms of Service</Heading>
+        <Heading size="xl">Terms and Conditions</Heading>
         <Text fontWeight="bold" color="fg.muted">
           Last Updated: November 3, 2026
         </Text>
