@@ -17,13 +17,37 @@ import {
   NavbarUserName,
 } from "../styles/Navbar.styles";
 import { Coin, Zap } from "./Logos";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiDelete } from "../utils/apiClient";
+import { getAccessToken, clearSession } from "../services/sessionService";
+import { useToast } from "../context/ToastContext";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const [deleting, setDeleting] = useState(false);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
   const { pathname, hash } = useLocation();
   const showAppNavigation = Boolean(user);
   const experience = user?.xp ?? 0;
   const coins = user?.points ?? 0;
+
+  const deleteAccount = async () => {
+    if (!window.confirm("Permanently delete your account and its data? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      const token = await getAccessToken();
+      await apiDelete("/me", { headers: { Authorization: `Bearer ${token}` } });
+      await clearSession();
+      navigate("/", { replace: true });
+      showToast("Your account has been permanently deleted.", "success");
+    } catch {
+      showToast("Unable to delete your account. Please try again.", "error");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const initials = user?.username
     ? user.username.slice(0, 2).toUpperCase()
@@ -78,6 +102,9 @@ const Navbar = () => {
             </NavbarUserName>
           </NavbarUser>
           <NavbarOutlineButton onClick={logout}>Sign out</NavbarOutlineButton>
+          <NavbarOutlineButton onClick={deleteAccount} disabled={deleting}>
+            {deleting ? "Deleting…" : "Delete account"}
+          </NavbarOutlineButton>
         </NavbarLinks>
       ) : (
         <NavbarLinks>

@@ -35,6 +35,10 @@ export async function apiPut(path, body, options = {}) {
   return request("PUT", path, body, options);
 }
 
+export async function apiDelete(path, options = {}) {
+  return request("DELETE", path, undefined, options);
+}
+
 async function request(method, path, body, options = {}) {
   const url = buildUrl(path);
   const res = await fetch(url, {
